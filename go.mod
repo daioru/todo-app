@@ -3,7 +3,6 @@ module github.com/daioru/todo-app
 go 1.24.0
 
 require (
-	github.com/Masterminds/squirrel v1.5.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/jmoiron/sqlx v1.4.0
@@ -29,8 +28,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
-	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
