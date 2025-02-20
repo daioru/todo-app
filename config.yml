@@ -1,0 +1,7 @@
+db:
+  DockerDSN: "postgres://user:password@postgres_container:5432/todo-app"
+  StandaloneDSN: "postgres://user:password@localhost:5432/todo-app"
+  maxOpenConns: 5
+  maxIdleConns: 5
+  connMaxIdleTime: 5m
+  connMaxLifetime: 5m
