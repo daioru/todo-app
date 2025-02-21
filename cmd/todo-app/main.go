@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/daioru/todo-app/internal/config"
+	"github.com/daioru/todo-app/internal/handlers"
 	"github.com/daioru/todo-app/internal/pkg/db"
+	"github.com/daioru/todo-app/internal/repository"
+	"github.com/daioru/todo-app/internal/services"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -27,8 +32,28 @@ func main() {
 		log.Fatalf("Error testing db connection: %v", err)
 	}
 
+	userRepo := repository.NewUserRepository(db)
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	jwtSecret := os.Getenv("JWTSECRET")
+	if jwtSecret == "" {
+		log.Fatal("No jwtSecret in .env")
+	}
+
+	authService := services.NewAuthService(userRepo, jwtSecret)
+
+	authHandler := handlers.NewAuthHandler(authService)
+
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
+
+	// Authentication routes
+	r.POST("/register", authHandler.Register)
+	r.POST("/login", authHandler.Login)
 
 	// Testing route
 	r.GET("/ping", func(c *gin.Context) {
