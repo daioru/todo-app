@@ -10,7 +10,7 @@ import (
 var cfg *Config
 
 type DB struct {
-	DSN       string        `yaml:"DSN"`
+	DSN             string        `yaml:"DSN"`
 	MaxOpenConns    int           `yaml:"maxOpenConns"`
 	MaxIdleConns    int           `yaml:"MaxIdleConns"`
 	ConnMaxIdleTime time.Duration `yaml:"connMaxIdleTime"`
