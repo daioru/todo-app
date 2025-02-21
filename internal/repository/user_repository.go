@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/daioru/todo-app/internal/models"
 
@@ -24,7 +25,7 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query, args, err := r.sq.Insert("users").
 		Columns("username", "password_hash", "created_at").
-		Values(user.Username, user.PasswordHash, user.CreatedAt).
+		Values(user.Username, user.PasswordHash, time.Now()).
 		Suffix("RETURNING id").
 		ToSql()
 	if err != nil {
@@ -60,7 +61,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 	}
 	err = r.db.Get(&user, query, args...)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, err
 	}
 	return &user, err
 }
