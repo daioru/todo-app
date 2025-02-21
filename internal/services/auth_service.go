@@ -35,7 +35,7 @@ func (s *AuthService) LoginUser(username, password string) (string, error) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return "", errors.New("Invalid credential")
+		return "", errors.New("invalid credential")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
