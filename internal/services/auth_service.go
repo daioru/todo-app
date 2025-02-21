@@ -11,16 +11,16 @@ import (
 )
 
 type AuthService struct {
-	repo      repository.UserRepository
+	repo      *repository.UserRepository
 	jwtSecret string
 }
 
-func NewAuthService(repo repository.UserRepository, jwtSecret string) *AuthService {
+func NewAuthService(repo *repository.UserRepository, jwtSecret string) *AuthService {
 	return &AuthService{repo: repo, jwtSecret: jwtSecret}
 }
 
 func (s *AuthService) RegisterUser(user *models.User) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
