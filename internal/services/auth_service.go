@@ -2,11 +2,10 @@ package services
 
 import (
 	"errors"
-	"time"
 
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/repository"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/daioru/todo-app/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -38,15 +37,5 @@ func (s *AuthService) LoginUser(username, password string) (string, error) {
 		return "", errors.New("invalid credential")
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 72).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte(s.jwtSecret))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return utils.GenerateToken(user.ID, s.jwtSecret)
 }
