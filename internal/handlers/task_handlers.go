@@ -40,7 +40,7 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
-func (h *TaskHandler) UdpateTask(c *gin.Context) {
+func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	var task models.Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
