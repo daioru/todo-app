@@ -8,6 +8,7 @@ import (
 
 	"github.com/daioru/todo-app/internal/config"
 	"github.com/daioru/todo-app/internal/handlers"
+	"github.com/daioru/todo-app/internal/middlewares"
 	"github.com/daioru/todo-app/internal/pkg/db"
 	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
@@ -44,14 +45,11 @@ func main() {
 		log.Fatal("No jwtSecret in .env")
 	}
 
-	authService := services.NewAuthService(userRepo, jwtSecret)
-
+	authService := services.NewAuthService(userRepo, []byte(jwtSecret))
 	authHandler := handlers.NewAuthHandler(authService)
 
 	taskRepo := repository.NewTaskRepository(db)
-
 	taskService := services.NewTaskService(taskRepo)
-
 	taskHandler := handlers.NewTaskHandler(taskService)
 
 	r := gin.Default()
@@ -62,10 +60,14 @@ func main() {
 	r.POST("/login", authHandler.Login)
 
 	// Task routes
-	r.POST("/tasks", taskHandler.CreateTask)
-	r.PUT("/tasks", taskHandler.UdpateTask)
-	r.GET("/tasks", taskHandler.GetTasks)
-	r.DELETE("/tasks", taskHandler.DeleteTask)
+	taskRoutes := r.Group("/tasks")
+	taskRoutes.Use(middlewares.AuthMiddleware([]byte(jwtSecret))) // Защищаем маршруты
+	{
+		taskRoutes.POST("", taskHandler.CreateTask)
+		taskRoutes.GET("", taskHandler.GetTasks)
+		taskRoutes.PUT("", taskHandler.UpdateTask)
+		taskRoutes.DELETE("/:id", taskHandler.DeleteTask)
+	}
 
 	// Testing route
 	r.GET("/ping", func(c *gin.Context) {
