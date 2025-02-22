@@ -26,12 +26,12 @@ func (r *TaskRepository) CreateTask(task *models.Task) error {
 	query, args, err := r.sq.Insert("tasks").
 		Columns("user_id", "title", "description", "status", "created_at").
 		Values(task.UserID, task.Title, task.Description, task.Status, time.Now()).
-		Suffix("RETURNING id").
+		Suffix("RETURNING id, created_at").
 		ToSql()
 	if err != nil {
 		return err
 	}
-	return r.db.QueryRow(query, args...).Scan(&task.ID)
+	return r.db.QueryRow(query, args...).Scan(&task.ID, &task.CreatedAt)
 }
 
 func (r *TaskRepository) GetTaskByID(id int) (*models.Task, error) {
