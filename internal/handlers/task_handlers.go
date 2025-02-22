@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/services"
@@ -23,6 +24,7 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 
+	task.UserID = c.GetInt("user_id")
 	if err := h.service.CreateTask(&task); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
@@ -47,6 +49,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 		return
 	}
 
+	task.UserID = c.GetInt("user_id")
 	if err := h.service.UpdateTask(&task); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errro": err.Error()})
 	}
@@ -55,5 +58,17 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 }
 
 func (h *TaskHandler) DeleteTask(c *gin.Context) {
+	taskID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		return
+	}
 
+	userID := c.GetInt("user_id")
+	if err := h.service.DeleteTask(taskID, userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Task deleted"})
 }
