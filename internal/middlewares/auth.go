@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(jwtSecred string) gin.HandlerFunc {
+func AuthMiddleware(jwtSecred []byte) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -26,7 +26,7 @@ func AuthMiddleware(jwtSecred string) gin.HandlerFunc {
 
 		userID, err := utils.ValidateToken(tokenParts[1], jwtSecred)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}

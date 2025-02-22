@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func GenerateToken(userID int, secredKey string) (string, error) {
+func GenerateToken(userID int, secredKey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(time.Hour * 72).Unix(),
@@ -17,12 +17,12 @@ func GenerateToken(userID int, secredKey string) (string, error) {
 	return token.SignedString(secredKey)
 }
 
-func ValidateToken(tokenString, secredKey string) (int, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func ValidateToken(tokenString string, secretKey []byte) (int, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return secredKey, nil
+		return secretKey, nil
 	})
 
 	if err != nil || !token.Valid {
@@ -34,10 +34,10 @@ func ValidateToken(tokenString, secredKey string) (int, error) {
 		return 0, errors.New("invalid token claims")
 	}
 
-	userID, ok := claims["user_id"].(int)
+	userID, ok := claims["user_id"].(float64)
 	if !ok {
 		return 0, errors.New("invalid user_id in token")
 	}
 
-	return userID, nil
+	return int(userID), nil
 }
