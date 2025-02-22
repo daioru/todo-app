@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/daioru/todo-app/internal/models"
 
@@ -24,7 +25,7 @@ func NewTaskRepository(db *sqlx.DB) *TaskRepository {
 func (r *TaskRepository) CreateTask(task *models.Task) error {
 	query, args, err := r.sq.Insert("tasks").
 		Columns("user_id", "title", "description", "status", "created_at").
-		Values(task.UserID, task.Title, task.Description, task.Status, task.CreatedAt).
+		Values(task.UserID, task.Title, task.Description, task.Status, time.Now()).
 		Suffix("RETURNING id").
 		ToSql()
 	if err != nil {
