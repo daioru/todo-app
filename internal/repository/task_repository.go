@@ -72,3 +72,20 @@ func (r *TaskRepository) DeleteTask(id int) error {
 	_, err = r.db.Exec(query, args...)
 	return err
 }
+
+func (r *TaskRepository) UpdateTask(task *models.Task) error {
+	query, args, err := r.sq.Update("tasks").
+		Set("title", task.Title).
+		Set("description", task.Description).
+		Set("status", task.Status).
+		Where(squirrel.And{
+			squirrel.Eq{"id": task.ID},
+			squirrel.Eq{"user_id": task.UserID},
+		}).ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Exec(query, args)
+	return err
+}
