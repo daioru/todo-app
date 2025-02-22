@@ -48,12 +48,24 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(authService)
 
+	taskRepo := repository.NewTaskRepository(db)
+
+	taskService := services.NewTaskService(taskRepo)
+
+	taskHandler := handlers.NewTaskHandler(taskService)
+
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
 	// Authentication routes
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
+
+	// Task routes
+	r.POST("/tasks", taskHandler.CreateTask)
+	r.PUT("/tasks", taskHandler.UdpateTask)
+	r.GET("/tasks", taskHandler.GetTasks)
+	r.DELETE("/tasks", taskHandler.DeleteTask)
 
 	// Testing route
 	r.GET("/ping", func(c *gin.Context) {
