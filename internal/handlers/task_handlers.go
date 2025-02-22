@@ -51,7 +51,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	task.UserID = c.GetInt("user_id")
 	if err := h.service.UpdateTask(&task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errro": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	c.JSON(http.StatusOK, task)
