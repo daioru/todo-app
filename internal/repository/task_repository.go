@@ -62,9 +62,12 @@ func (r *TaskRepository) GetTasksByUserID(userID int) ([]models.Task, error) {
 	return tasks, err
 }
 
-func (r *TaskRepository) DeleteTask(id int) error {
+func (r *TaskRepository) DeleteTask(taskID, userID int) error {
 	query, args, err := r.sq.Delete("tasks").
-		Where(squirrel.Eq{"id": id}).
+		Where(squirrel.And{
+			squirrel.Eq{"id": taskID},
+			squirrel.Eq{"user_id": userID},
+		}).
 		ToSql()
 	if err != nil {
 		return err
