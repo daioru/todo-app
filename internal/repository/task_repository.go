@@ -85,11 +85,12 @@ func (r *TaskRepository) UpdateTask(task *models.Task) error {
 		Where(squirrel.And{
 			squirrel.Eq{"id": task.ID},
 			squirrel.Eq{"user_id": task.UserID},
-		}).ToSql()
+		}).Suffix("RETURNING created_at").
+		ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.db.Exec(query, args)
+	err = r.db.Get(&task.CreatedAt, query, args...)
 	return err
 }
