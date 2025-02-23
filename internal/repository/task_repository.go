@@ -4,24 +4,25 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/daioru/todo-app/internal/logger"
 	"github.com/daioru/todo-app/internal/models"
+	"github.com/rs/zerolog"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.New()
-
 type TaskRepository struct {
-	db *sqlx.DB
-	sq squirrel.StatementBuilderType
+	db  *sqlx.DB
+	sq  squirrel.StatementBuilderType
+	log zerolog.Logger
 }
 
 func NewTaskRepository(db *sqlx.DB) *TaskRepository {
 	return &TaskRepository{
-		db: db,
-		sq: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		db:  db,
+		sq:  squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		log: logger.GetLogger(),
 	}
 }
 
@@ -32,22 +33,20 @@ func (r *TaskRepository) CreateTask(task *models.Task) error {
 		Suffix("RETURNING id, created_at").
 		ToSql()
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"user_id":     task.UserID,
-			"task_id":     task.UserID,
-			"title":       task.Title,
-			"description": task.Description,
-			"status":      task.Status,
-		}).Errorf("Failed to build SQL query: %v", err)
+		r.log.Error().
+			Object("task", task).
+			Err(err).
+			Msg("Failed to build CreateTask query")
 		return err
 	}
 
 	err = r.db.QueryRow(query, args...).Scan(&task.ID, &task.CreatedAt)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"query": query,
-			"args":  args,
-		}).Errorf("DB execution error: %v", err)
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("CreateTask DB execution error")
 		return err
 	}
 
@@ -62,9 +61,10 @@ func (r *TaskRepository) GetTaskByID(id int) (*models.Task, error) {
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"task_id": id,
-		}).Errorf("Failed to build SQL query: %v", err)
+		r.log.Error().
+			Int("task_id", id).
+			Err(err).
+			Msg("Failed to build GetTaskByID query")
 		return &task, err
 	}
 
@@ -73,10 +73,11 @@ func (r *TaskRepository) GetTaskByID(id int) (*models.Task, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.WithFields(logrus.Fields{
-			"query": query,
-			"args":  args,
-		}).Errorf("DB execution error: %v", err)
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("GetTaskByID DB execution error")
 		return &task, err
 	}
 
@@ -91,18 +92,20 @@ func (r *TaskRepository) GetTasksByUserID(userID int) ([]models.Task, error) {
 		Where(squirrel.Eq{"user_id": userID}).
 		ToSql()
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"userID": userID,
-		}).Errorf("Failed to build SQL query: %v", err)
+		r.log.Error().
+			Int("user_id", userID).
+			Err(err).
+			Msg("Failed to build GetTasksByUserID query")
 		return tasks, err
 	}
 
 	err = r.db.Select(&tasks, query, args...)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"query": query,
-			"args":  args,
-		}).Errorf("DB execution error: %v", err)
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("GetTasksByUserID DB execution error")
 		return tasks, err
 	}
 
@@ -117,19 +120,21 @@ func (r *TaskRepository) DeleteTask(taskID, userID int) error {
 		}).
 		ToSql()
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"task_id": taskID,
-			"user_id": userID,
-		}).Errorf("Failed to build SQL query: %v", err)
+		r.log.Error().
+			Int("task_id", taskID).
+			Int("user_id", userID).
+			Err(err).
+			Msg("Failed to build DeleteTask query")
 		return err
 	}
 
 	_, err = r.db.Exec(query, args...)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"query": query,
-			"args":  args,
-		}).Errorf("DB execution error: %v", err)
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("DeleteTask DB execution error")
 		return err
 	}
 
@@ -145,19 +150,21 @@ func (r *TaskRepository) UpdateTask(task *models.Task) error {
 		Suffix("RETURNING created_at").
 		ToSql()
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"task_id": task.ID,
-			"user_id": task.UserID,
-		}).Errorf("Failed to build SQL query: %v", err)
+		r.log.Error().
+			Int("task_id", task.ID).
+			Int("user_id", task.UserID).
+			Err(err).
+			Msg("Failed to build UpdateTask query")
 		return err
 	}
 
 	err = r.db.Get(&task.CreatedAt, query, args...)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"query": query,
-			"args":  args,
-		}).Errorf("DB execution error: %v", err)
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("UpdateTask DB execution error")
 		return err
 	}
 
