@@ -8,7 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(jwtSecred []byte) gin.HandlerFunc {
+type AuthMiddleware struct {
+	jwtService *utils.JWTService
+}
+
+func NewAuthMiddleware(jwtService *utils.JWTService) *AuthMiddleware {
+	return &AuthMiddleware{jwtService: jwtService}
+}
+
+func (s *AuthMiddleware) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -24,7 +32,7 @@ func AuthMiddleware(jwtSecred []byte) gin.HandlerFunc {
 			return
 		}
 
-		userID, err := utils.ValidateToken(tokenParts[1], jwtSecred)
+		userID, err := s.jwtService.ValidateToken(tokenParts[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
