@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/daioru/todo-app/internal/config"
@@ -12,19 +11,23 @@ import (
 	"github.com/daioru/todo-app/internal/pkg/db"
 	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
+	"github.com/daioru/todo-app/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	//Logger
 	logger.InitLogger()
 	log := logger.GetLogger()
 
+	//Config
 	if err := config.ReadConfigYML("config.yml"); err != nil {
 		log.Fatal().Msg("Failed init configuration")
 	}
 	cfg := config.GetConfigInstance()
 
+	//Database
 	db, err := db.ConnectDB(&cfg.DB)
 	if err != nil {
 		log.Fatal().Msgf("sqlx_Open error: %v", err)
@@ -36,8 +39,11 @@ func main() {
 		log.Fatal().Msgf("Error testing db connection: %v", err)
 	}
 
+	//Repositories
 	userRepo := repository.NewUserRepository(db)
+	taskRepo := repository.NewTaskRepository(db)
 
+	//JWT Service
 	err = godotenv.Load()
 	if err != nil {
 		log.Fatal().Msg("Error loading .env file")
@@ -48,35 +54,25 @@ func main() {
 		log.Fatal().Msg("No jwtSecret in .env")
 	}
 
-	authService := services.NewAuthService(userRepo, []byte(jwtSecret))
-	authHandler := handlers.NewAuthHandler(authService)
+	jwtService := utils.NewJwtService([]byte(jwtSecret))
 
-	taskRepo := repository.NewTaskRepository(db)
+	//Services
+	authService := services.NewAuthService(userRepo, jwtService)
 	taskService := services.NewTaskService(taskRepo)
-	taskHandler := handlers.NewTaskHandler(taskService)
 
+	//Handlers
+	authHandler := handlers.NewAuthHandler(authService)
+	taskHandler := handlers.NewTaskHandler(taskService)
+	authMiddleware := middlewares.NewAuthMiddleware(jwtService)
+
+	handlers := handlers.NewHandlers(authHandler, taskHandler, authMiddleware)
+
+	//Server
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
-	// Authentication routes
-	r.POST("/register", authHandler.Register)
-	r.POST("/login", authHandler.Login)
-
-	// Task routes
-	taskRoutes := r.Group("/tasks")
-	taskRoutes.Use(middlewares.AuthMiddleware([]byte(jwtSecret))) // Защищаем маршруты
-	{
-		taskRoutes.POST("", taskHandler.CreateTask)
-		taskRoutes.GET("", taskHandler.GetTasks)
-		taskRoutes.PUT("", taskHandler.UpdateTask)
-		taskRoutes.DELETE("/:id", taskHandler.DeleteTask)
-	}
-
-	// Testing route
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "pong"})
-	})
+	handlers.RegisterRoutes(r)
 
 	port := ":8080"
 	fmt.Println("Server is running on port" + port)
