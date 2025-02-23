@@ -4,25 +4,46 @@ import (
 	"errors"
 	"time"
 
+	"github.com/daioru/todo-app/internal/logger"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/zerolog"
 )
 
-func GenerateToken(userID int, secredKey []byte) (string, error) {
+type JWTService struct {
+	jwtSecret []byte
+	log       zerolog.Logger
+}
+
+func NewJwtService(jwtSecret []byte) *JWTService {
+	return &JWTService{
+		jwtSecret: jwtSecret,
+		log:       logger.GetLogger(),
+	}
+}
+
+func (s *JWTService) GenerateToken(userID int) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secredKey)
+
+	signedToken, err := token.SignedString(s.jwtSecret)
+	if err != nil {
+		s.log.Error().Err(err).Msg("SignedString error")
+		return "", err
+	}
+
+	return signedToken, nil
 }
 
-func ValidateToken(tokenString string, secretKey []byte) (int, error) {
+func (s *JWTService) ValidateToken(tokenString string) (int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return secretKey, nil
+		return s.jwtSecret, nil
 	})
 
 	if err != nil || !token.Valid {
