@@ -26,7 +26,8 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 
 	task.UserID = c.GetInt("user_id")
 	if err := h.service.CreateTask(&task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Status(http.StatusInternalServerError)
+		return
 	}
 
 	c.JSON(http.StatusCreated, task)
@@ -36,7 +37,8 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 	userID := c.GetInt("user_id")
 	tasks, err := h.service.GetTasksByUser(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
+		c.Status(http.StatusInternalServerError)
+		return
 	}
 
 	c.JSON(http.StatusOK, tasks)
@@ -51,7 +53,8 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	task.UserID = c.GetInt("user_id")
 	if err := h.service.UpdateTask(&task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Status(http.StatusInternalServerError)
+		return
 	}
 
 	c.JSON(http.StatusOK, task)
@@ -66,7 +69,7 @@ func (h *TaskHandler) DeleteTask(c *gin.Context) {
 
 	userID := c.GetInt("user_id")
 	if err := h.service.DeleteTask(taskID, userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
