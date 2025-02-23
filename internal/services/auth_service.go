@@ -10,12 +10,15 @@ import (
 )
 
 type AuthService struct {
-	repo      *repository.UserRepository
-	jwtSecret []byte
+	repo       *repository.UserRepository
+	jwtService *utils.JWTService
 }
 
-func NewAuthService(repo *repository.UserRepository, jwtSecret []byte) *AuthService {
-	return &AuthService{repo: repo, jwtSecret: jwtSecret}
+func NewAuthService(repo *repository.UserRepository, jwtService *utils.JWTService) *AuthService {
+	return &AuthService{
+		repo:       repo,
+		jwtService: jwtService,
+	}
 }
 
 func (s *AuthService) RegisterUser(user *models.User) error {
@@ -37,5 +40,5 @@ func (s *AuthService) LoginUser(username, password string) (string, error) {
 		return "", errors.New("invalid credential")
 	}
 
-	return utils.GenerateToken(user.ID, s.jwtSecret)
+	return s.jwtService.GenerateToken(user.ID)
 }
