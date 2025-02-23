@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/rs/zerolog"
+)
 
 type Task struct {
 	ID          int       `db:"id" json:"id"`
@@ -9,4 +13,13 @@ type Task struct {
 	Description string    `db:"description" json:"description"`
 	Status      string    `db:"status" json:"status"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+}
+
+func (t Task) MarshalZerologObject(e *zerolog.Event) {
+	e.Int("id", t.ID).
+		Int("user_id", t.UserID).
+		Str("title", t.Title).
+		Str("description", t.Description).
+		Str("status", t.Status).
+		Time("created_at", t.CreatedAt)
 }
