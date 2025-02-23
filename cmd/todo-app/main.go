@@ -55,6 +55,7 @@ func main() {
 	taskService := services.NewTaskService(taskRepo)
 	taskHandler := handlers.NewTaskHandler(taskService)
 
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
