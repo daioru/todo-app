@@ -95,6 +95,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 			Str("username", username).
 			Err(err).
 			Msg("Failed to build GetUserByUsername query")
+		return nil, err
 	}
 
 	err = r.db.Get(&user, query, args...)
@@ -107,6 +108,8 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 			Interface("args", args).
 			Err(err).
 			Msg("GetUserByUsername DB execution error")
+		return nil, err
 	}
-	return &user, err
+
+	return &user, nil
 }
