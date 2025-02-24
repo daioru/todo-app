@@ -14,14 +14,14 @@ import (
 )
 
 type AuthService struct {
-	repo       *repository.UserRepository
-	log        zerolog.Logger
+	repo *repository.UserRepository
+	log  zerolog.Logger
 }
 
 func NewAuthService(repo *repository.UserRepository) *AuthService {
 	return &AuthService{
-		repo:       repo,
-		log:        logger.GetLogger(),
+		repo: repo,
+		log:  logger.GetLogger(),
 	}
 }
 
@@ -51,7 +51,7 @@ func (s *AuthService) LoginUser(username, password string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, err := token.SignedString(os.Getenv("JWTSECRET"))
+	signedToken, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
 	if err != nil {
 		s.log.Error().Err(err).Msg("SignedString error")
 		return "", err
