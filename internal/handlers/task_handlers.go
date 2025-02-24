@@ -46,10 +46,18 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 
 func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	var task models.Task
+
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+
+	taskID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		return
+	}
+	task.ID = taskID
 
 	task.UserID = c.GetInt("user_id")
 	if err := h.service.UpdateTask(&task); err != nil {
