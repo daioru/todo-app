@@ -40,7 +40,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("user_id", userID)
+			c.Set("user_id", int(userID))
 			c.Next()
 		} else {
 			c.AbortWithStatus(http.StatusUnauthorized)
