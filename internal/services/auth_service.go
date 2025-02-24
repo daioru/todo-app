@@ -2,22 +2,26 @@ package services
 
 import (
 	"errors"
+	"os"
+	"time"
 
+	"github.com/daioru/todo-app/internal/logger"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/repository"
-	"github.com/daioru/todo-app/internal/utils"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/zerolog"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
 	repo       *repository.UserRepository
-	jwtService *utils.JWTService
+	log        zerolog.Logger
 }
 
-func NewAuthService(repo *repository.UserRepository, jwtService *utils.JWTService) *AuthService {
+func NewAuthService(repo *repository.UserRepository) *AuthService {
 	return &AuthService{
 		repo:       repo,
-		jwtService: jwtService,
+		log:        logger.GetLogger(),
 	}
 }
 
@@ -40,5 +44,18 @@ func (s *AuthService) LoginUser(username, password string) (string, error) {
 		return "", errors.New("invalid credential")
 	}
 
-	return s.jwtService.GenerateToken(user.ID)
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err := token.SignedString(os.Getenv("JWTSECRET"))
+	if err != nil {
+		s.log.Error().Err(err).Msg("SignedString error")
+		return "", err
+	}
+
+	return signedToken, nil
 }

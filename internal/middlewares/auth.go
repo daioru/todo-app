@@ -1,45 +1,52 @@
 package middlewares
 
 import (
+	"errors"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
-	"github.com/daioru/todo-app/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
-type AuthMiddleware struct {
-	jwtService *utils.JWTService
-}
-
-func NewAuthMiddleware(jwtService *utils.JWTService) *AuthMiddleware {
-	return &AuthMiddleware{jwtService: jwtService}
-}
-
-func (s *AuthMiddleware) AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header not provided"})
-			c.Abort()
-			return
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
-			c.Abort()
-			return
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 
-		userID, err := s.jwtService.ValidateToken(tokenParts[1])
+		token, err := jwt.Parse(tokenParts[1], func(token *jwt.Token) (any, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("unexpected signing method")
+			}
+			return os.Getenv("JWTSECRED"), nil
+		})
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
-			return
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 
-		c.Set("user_id", userID)
-		c.Next()
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			if float64(time.Now().Unix()) > claims["exp"].(float64) {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			userID, ok := claims["user_id"].(float64)
+			if !ok {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			c.Set("user_id", userID)
+			c.Next()
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
 	}
 }

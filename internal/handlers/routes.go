@@ -8,14 +8,12 @@ import (
 type Handlers struct {
 	authHandler    *AuthHandler
 	taskHandler    *TaskHandler
-	authMiddleware *middlewares.AuthMiddleware
 }
 
-func NewHandlers(authHandler *AuthHandler, taskHandler *TaskHandler, authMiddleware *middlewares.AuthMiddleware) *Handlers {
+func NewHandlers(authHandler *AuthHandler, taskHandler *TaskHandler) *Handlers {
 	return &Handlers{
 		authHandler:    authHandler,
 		taskHandler:    taskHandler,
-		authMiddleware: authMiddleware,
 	}
 }
 
@@ -28,7 +26,7 @@ func (h *Handlers) RegisterRoutes(router *gin.Engine) {
 			auth.POST("/login", h.authHandler.Login)
 		}
 
-		tasks := api.Group("/tasks", h.authMiddleware.AuthMiddleware())
+		tasks := api.Group("/tasks", middlewares.AuthMiddleware())
 		{
 			tasks.POST("/", h.taskHandler.CreateTask)
 			tasks.GET("/", h.taskHandler.GetTasks)

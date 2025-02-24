@@ -7,11 +7,9 @@ import (
 	"github.com/daioru/todo-app/internal/config"
 	"github.com/daioru/todo-app/internal/handlers"
 	"github.com/daioru/todo-app/internal/logger"
-	"github.com/daioru/todo-app/internal/middlewares"
 	"github.com/daioru/todo-app/internal/pkg/db"
 	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
-	"github.com/daioru/todo-app/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -54,18 +52,15 @@ func main() {
 		log.Fatal().Msg("No jwtSecret in .env")
 	}
 
-	jwtService := utils.NewJwtService([]byte(jwtSecret))
-
 	//Services
-	authService := services.NewAuthService(userRepo, jwtService)
+	authService := services.NewAuthService(userRepo)
 	taskService := services.NewTaskService(taskRepo)
 
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	taskHandler := handlers.NewTaskHandler(taskService)
-	authMiddleware := middlewares.NewAuthMiddleware(jwtService)
 
-	handlers := handlers.NewHandlers(authHandler, taskHandler, authMiddleware)
+	handlers := handlers.NewHandlers(authHandler, taskHandler)
 
 	//Server
 	gin.SetMode(gin.ReleaseMode)
