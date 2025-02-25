@@ -20,6 +20,18 @@ func (s *TaskService) CreateTask(task *models.Task) error {
 		return errors.New("task title cannot be blank")
 	}
 
+	if len(task.Title) > 100 {
+		return errors.New("title field too long")
+	}
+
+	if task.Status == "" {
+		return errors.New("task status cannot be blank")
+	}
+
+	if len(task.Status) > 100 {
+		return errors.New("status field too long")
+	}
+
 	return s.taskRepo.CreateTask(task)
 }
 
