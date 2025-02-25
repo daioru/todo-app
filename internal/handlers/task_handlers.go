@@ -6,6 +6,7 @@ import (
 
 	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
+	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -68,6 +69,9 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateTask(updates); err != nil {
+		if err == repository.ErrNoRowsUpdated {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task or user ID"})
+		}
 		c.Status(http.StatusInternalServerError)
 		return
 	}

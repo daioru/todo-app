@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/daioru/todo-app/internal/logger"
@@ -163,7 +164,7 @@ func (r *TaskRepository) UpdateTask(updates map[string]interface{}) error {
 		return err
 	}
 
-	_, err = r.db.Exec(query, args...)
+	result, err := r.db.Exec(query, args...)
 	if err != nil {
 		r.log.Error().
 			Str("query", query).
@@ -172,6 +173,13 @@ func (r *TaskRepository) UpdateTask(updates map[string]interface{}) error {
 			Msg("UpdateTask DB execution error")
 		return err
 	}
+
+	c, _ := result.RowsAffected()
+	if c == 0 {
+		return ErrNoRowsUpdated
+	}
+
+	fmt.Println(result.RowsAffected())
 
 	return nil
 }
