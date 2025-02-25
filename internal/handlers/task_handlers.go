@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/services"
 	"github.com/gin-gonic/gin"
@@ -45,9 +46,8 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 }
 
 func (h *TaskHandler) UpdateTask(c *gin.Context) {
-	var task models.Task
-
-	if err := c.ShouldBindJSON(&task); err != nil {
+	var updates map[string]interface{}
+	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
@@ -57,15 +57,22 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
 		return
 	}
-	task.ID = taskID
 
-	task.UserID = c.GetInt("user_id")
-	if err := h.service.UpdateTask(&task); err != nil {
+	updates["id"] = taskID
+
+	updates["user_id"] = c.GetInt("user_id")
+
+	updates, err = helpers.Validate(updates)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid fields to update"})
+	}
+
+	if err := h.service.UpdateTask(updates); err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func (h *TaskHandler) DeleteTask(c *gin.Context) {

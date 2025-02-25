@@ -141,24 +141,29 @@ func (r *TaskRepository) DeleteTask(taskID, userID int) error {
 	return nil
 }
 
-func (r *TaskRepository) UpdateTask(task *models.Task) error {
-	query, args, err := r.sq.Update("tasks").
-		Set("title", task.Title).
-		Set("description", task.Description).
-		Set("status", task.Status).
-		Where(squirrel.Eq{"id": task.ID, "user_id": task.UserID}).
-		Suffix("RETURNING created_at").
-		ToSql()
+func (r *TaskRepository) UpdateTask(updates map[string]interface{}) error {
+	stmt := r.sq.Update("tasks").
+		Where(squirrel.Eq{"id": updates["id"], "user_id": updates["user_id"]})
+
+	for key, value := range updates {
+		if key == "id" || key == "user_id" {
+			continue
+		}
+		stmt = stmt.Set(key, value)
+	}
+
+	query, args, err := stmt.ToSql()
+
 	if err != nil {
 		r.log.Error().
-			Int("task_id", task.ID).
-			Int("user_id", task.UserID).
+			Int("task_id", updates["id"].(int)).
+			Int("user_id", updates["user_id"].(int)).
 			Err(err).
 			Msg("Failed to build UpdateTask query")
 		return err
 	}
 
-	err = r.db.Get(&task.CreatedAt, query, args...)
+	_, err = r.db.Exec(query, args...)
 	if err != nil {
 		r.log.Error().
 			Str("query", query).

@@ -27,11 +27,8 @@ func (s *TaskService) GetTasksByUser(userID int) ([]models.Task, error) {
 	return s.taskRepo.GetTasksByUserID(userID)
 }
 
-func (s *TaskService) UpdateTask(task *models.Task) error {
-	if task.Title == "" {
-		return errors.New("task title cannot be blank")
-	}
-	return s.taskRepo.UpdateTask(task)
+func (s *TaskService) UpdateTask(updates map[string]interface{}) error {
+	return s.taskRepo.UpdateTask(updates)
 }
 
 func (s *TaskService) DeleteTask(taskID, userID int) error {
