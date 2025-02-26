@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/daioru/todo-app/internal/models"
+	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	err := h.service.RegisterUser(&req)
 	if err != nil {
+		if err == repository.ErrUniqueUser {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "username already taken"})
+		}
+
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -46,7 +51,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", token, 3600 * 24 * 3, "", "", false, true)
+	c.SetCookie("Authorization", token, 3600*24*3, "", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{})
 }

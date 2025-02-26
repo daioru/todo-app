@@ -26,6 +26,18 @@ func NewAuthService(repo *repository.UserRepository) *AuthService {
 }
 
 func (s *AuthService) RegisterUser(user *models.User) error {
+	exists, err := s.repo.UserExists(user)
+	if err != nil {
+		s.log.Error().
+			Object("user", user).
+			Err(err).
+			Msg("Failed to check UserExists")
+		return err
+	}
+	if exists {
+		return repository.ErrUniqueUser
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

@@ -26,6 +26,37 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 	}
 }
 
+func (r *UserRepository) UserExists(user *models.User) (bool, error) {
+	query, args, err := r.sq.Select("COUNT(*)").
+		From("users").
+		Where(squirrel.Eq{"username": user.Username}).
+		ToSql()
+	if err != nil {
+		r.log.Error().
+			Object("user", user).
+			Err(err).
+			Msg("Failed to build UserExists query")
+		return false, err
+	}
+
+	var count int
+	err = r.db.Get(&count, query, args...)
+	if err != nil {
+		r.log.Error().
+			Str("query", query).
+			Interface("args", args).
+			Err(err).
+			Msg("UserExists DB execution error")
+		return false, err
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query, args, err := r.sq.Insert("users").
 		Columns("username", "password_hash", "created_at").
@@ -46,11 +77,11 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 			Str("query", query).
 			Interface("args", args).
 			Err(err).
-			Msg("CreateUser DB execution error")
+			Msg("UserExists DB execution error")
 		return err
 	}
 
-	return nil
+	return err
 }
 
 func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
