@@ -13,12 +13,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type IUserRepository interface {
+	UserExists(user *models.User) (bool, error)
+	CreateUser(user *models.User) error
+	GetUserByID(id int) (*models.User, error)
+	GetUserByUsername(username string) (*models.User, error)
+}
+
 type AuthService struct {
-	repo *repository.UserRepository
+	repo IUserRepository
 	log  zerolog.Logger
 }
 
-func NewAuthService(repo *repository.UserRepository) *AuthService {
+func NewAuthService(repo IUserRepository) *AuthService {
 	return &AuthService{
 		repo: repo,
 		log:  logger.GetLogger(),
