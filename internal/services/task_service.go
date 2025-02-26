@@ -4,14 +4,21 @@ import (
 	"errors"
 
 	"github.com/daioru/todo-app/internal/models"
-	"github.com/daioru/todo-app/internal/repository"
 )
 
-type TaskService struct {
-	taskRepo *repository.TaskRepository
+type ITaskRepository interface {
+	CreateTask(task *models.Task) error
+	GetTaskByID(id int) (*models.Task, error)
+	GetTasksByUserID(userID int) ([]models.Task, error)
+	DeleteTask(taskID, userID int) error
+	UpdateTask(updates map[string]interface{}) error
 }
 
-func NewTaskService(taskRepo *repository.TaskRepository) *TaskService {
+type TaskService struct {
+	taskRepo ITaskRepository
+}
+
+func NewTaskService(taskRepo ITaskRepository) *TaskService {
 	return &TaskService{taskRepo: taskRepo}
 }
 
