@@ -72,6 +72,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) || errors.Is(err, services.ErrInvalidCredentials) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "ivalid credentials"})
+			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
