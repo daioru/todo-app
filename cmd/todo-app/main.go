@@ -14,6 +14,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title TODO App API
+// @version 1.0
+// @description API Server for TODO Application
+// @host 172.27.227.76:8080
+// @BasePath /api/
+// @securityDefinitions.cookie Auth
+// @in cookie
+// @name Authorization
 func main() {
 	//Logger
 	logger.InitLogger()

@@ -5,3 +5,7 @@ run:
 PHONY: .migrate
 migrate:
 	go run cmd/migration/main.go
+
+.PHONY: .swag
+swag:
+	swag init -d cmd/todo-app,internal/handlers,internal/models

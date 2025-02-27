@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"os"
 	"time"
 
@@ -56,11 +55,11 @@ func (s *AuthService) RegisterUser(user *models.User) error {
 func (s *AuthService) LoginUser(username, password string) (string, error) {
 	user, err := s.repo.GetUserByUsername(username)
 	if err != nil {
-		return "", errors.New("user not found")
+		return "", ErrUserNotFound
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return "", errors.New("invalid credential")
+		return "", ErrInvalidCredentials
 	}
 
 	claims := jwt.MapClaims{

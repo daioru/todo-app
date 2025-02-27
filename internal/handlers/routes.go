@@ -3,22 +3,24 @@ package handlers
 import (
 	"github.com/daioru/todo-app/internal/middlewares"
 	"github.com/gin-gonic/gin"
+	files "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handlers struct {
-	authHandler    *AuthHandler
-	taskHandler    *TaskHandler
+	authHandler *AuthHandler
+	taskHandler *TaskHandler
 }
 
 func NewHandlers(authHandler *AuthHandler, taskHandler *TaskHandler) *Handlers {
 	return &Handlers{
-		authHandler:    authHandler,
-		taskHandler:    taskHandler,
+		authHandler: authHandler,
+		taskHandler: taskHandler,
 	}
 }
 
-func (h *Handlers) RegisterRoutes(router *gin.Engine) {
-	api := router.Group("/api")
+func (h *Handlers) RegisterRoutes(r *gin.Engine) {
+	api := r.Group("/api")
 	{
 		auth := api.Group("/auth")
 		{
@@ -34,4 +36,6 @@ func (h *Handlers) RegisterRoutes(router *gin.Engine) {
 			tasks.DELETE("/:id", h.taskHandler.DeleteTask)
 		}
 	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler))
 }
