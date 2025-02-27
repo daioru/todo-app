@@ -132,7 +132,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 	err = r.db.Get(&user, query, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, ErrUserNotFound
 		}
 		r.log.Error().
 			Str("query", query).

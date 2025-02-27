@@ -70,7 +70,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	token, err := h.service.LoginUser(req.Username, req.Password)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) || errors.Is(err, services.ErrInvalidCredentials) {
+		if errors.Is(err, repository.ErrUserNotFound) || errors.Is(err, services.ErrInvalidCredentials) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "ivalid credentials"})
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
