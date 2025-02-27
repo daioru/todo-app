@@ -5,12 +5,36 @@ definitions:
       error:
         type: string
     type: object
+  handlers.TaskData:
+    properties:
+      description:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
   handlers.UserData:
     properties:
       password:
         type: string
       username:
         type: string
+    type: object
+  models.Task:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
     type: object
 host: 172.27.227.76:8080
 info:
@@ -79,4 +103,62 @@ paths:
       summary: Register
       tags:
       - auth
+  /tasks/:
+    get:
+      consumes:
+      - application/json
+      description: get all user tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Task'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Auth: []
+      summary: GetTasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: create new task
+      parameters:
+      - description: user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaskData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Auth: []
+      summary: CreateTask
+      tags:
+      - tasks
 swagger: "2.0"
