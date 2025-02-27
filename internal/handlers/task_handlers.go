@@ -68,16 +68,29 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
+// @Summary UpdateTask
+// @Description update stated field in task with {id}
+// @Security Auth
+// @Accept  json
+// @Produce  json
+// @Tags tasks
+// @Param id path int true "Task ID"
+// @Param input body TaskData true "user info"
+// @Success 200
+// @Failure 400 {object} ErrorResponse
+// @Failure 401
+// @Failure 500 {object} ErrorResponse
+// @Router /tasks/{id} [put]
 func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	taskID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task ID"})
 		return
 	}
 
@@ -87,20 +100,34 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	updates, err = helpers.Validate(updates)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid fields to update"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid fields to update"})
+		return
 	}
 
 	if err := h.service.UpdateTask(updates); err != nil {
 		if err == repository.ErrNoRowsUpdated {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task or user ID"})
+			return
 		}
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.Status(http.StatusOK)
 }
 
+// @Summary DeleteTask
+// @Description delete task with {id}
+// @Security Auth
+// @Accept  json
+// @Produce  json
+// @Tags tasks
+// @Param id path int true "Task ID"
+// @Success 200 {object} SuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401
+// @Failure 500 {object} ErrorResponse
+// @Router /tasks/{id} [delete]
 func (h *TaskHandler) DeleteTask(c *gin.Context) {
 	taskID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -110,7 +137,7 @@ func (h *TaskHandler) DeleteTask(c *gin.Context) {
 
 	userID := c.GetInt("user_id")
 	if err := h.service.DeleteTask(taskID, userID); err != nil {
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}
 

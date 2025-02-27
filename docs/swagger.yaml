@@ -5,6 +5,11 @@ definitions:
       error:
         type: string
     type: object
+  handlers.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
   handlers.TaskData:
     properties:
       description:
@@ -159,6 +164,75 @@ paths:
       security:
       - Auth: []
       summary: CreateTask
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete task with {id}
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Auth: []
+      summary: DeleteTask
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: update stated field in task with {id}
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaskData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Auth: []
+      summary: UpdateTask
       tags:
       - tasks
 swagger: "2.0"
