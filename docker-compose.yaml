@@ -1,5 +1,19 @@
 version: "3.9"
 services:
+  app:
+    build: .
+    container_name: todo-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - app_network
+
   postgres:
     container_name: postgres_container
     image: postgres:17.2
@@ -15,6 +29,10 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - app_network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "todo_app" ]
+      interval: 10s
+      retries: 5
 
   pgadmin:
     container_name: pgadmin_container
