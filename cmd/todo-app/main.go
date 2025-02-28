@@ -17,7 +17,7 @@ import (
 // @title TODO App API
 // @version 1.0
 // @description API Server for TODO Application
-// @host 172.27.227.76:8080
+// @host localhost:8080
 // @BasePath /api/
 // @securityDefinitions.cookie Auth
 // @in cookie
@@ -49,7 +49,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	taskRepo := repository.NewTaskRepository(db)
 
-	//JWT Service
+	//JWT
 	err = godotenv.Load()
 	if err != nil {
 		log.Fatal().Msg("Error loading .env file")
