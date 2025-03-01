@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -137,6 +138,12 @@ func (h *TaskHandler) DeleteTask(c *gin.Context) {
 
 	userID := c.GetInt("user_id")
 	if err := h.service.DeleteTask(taskID, userID); err != nil {
+		if err == repository.ErrNoRowsUpdated {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("task with id: %d doesn't exist or access denied", taskID),
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}

@@ -129,7 +129,7 @@ func (r *TaskRepository) DeleteTask(taskID, userID int) error {
 		return err
 	}
 
-	_, err = r.db.Exec(query, args...)
+	result, err := r.db.Exec(query, args...)
 	if err != nil {
 		r.log.Error().
 			Str("query", query).
@@ -137,6 +137,11 @@ func (r *TaskRepository) DeleteTask(taskID, userID int) error {
 			Err(err).
 			Msg("DeleteTask DB execution error")
 		return err
+	}
+
+	c, _ := result.RowsAffected()
+	if c == 0 {
+		return ErrNoRowsUpdated
 	}
 
 	return nil
