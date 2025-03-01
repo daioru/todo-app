@@ -87,21 +87,21 @@ POST /api/tasks
 **Тело запроса (JSON)**:
 ```json
 {
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread",
+  "title": "title",
+  "description": "description",
   "status": "pending"
 }
 ```
 
-**Ответ**:
+**Пример ответа (JSON)**:
 ```json
 {
-  "id": 0,
-  "user_id": 0,
-  "title": "string",
-  "description": "string",
-  "status": "string",
-  "created_at": "string"
+  "id": 1,
+  "user_id": 1,
+  "title": "title",
+  "description": "description",
+  "status": "pending",
+  "created_at": "2025-03-01T09:00:00.608822Z"
 }
 ```
 
@@ -110,7 +110,7 @@ POST /api/tasks
 GET /api/tasks
 ```
 
-**Ответ**:
+**Пример ответа (JSON)**:
 ```json
 [
   {
@@ -119,7 +119,7 @@ GET /api/tasks
     "title": "string",
     "description": "string",
     "status": "string",
-    "created_at": "string"
+    "created_at": "2025-03-01T09:00:00.608822Z"
   }
 ]
 ```
