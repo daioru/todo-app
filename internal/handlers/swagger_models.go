@@ -1,8 +1,8 @@
 package handlers
 
 type UserData struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type SuccessResponse struct {
@@ -13,8 +13,14 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-type TaskData struct {
-	Title       string `db:"title" json:"title"`
-	Description string `db:"description" json:"description"`
-	Status      string `db:"status" json:"status"`
+type CreateTaskData struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Status      string `json:"status" validate:"required"`
+}
+
+type UpdateTaskData struct {
+	Title       string `json:"title" validate:"optional"`
+	Description string `json:"description" validate:"optional"`
+	Status      string `json:"status" validate:"optional"`
 }

@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "172.27.227.76:8080",
+    "host": "localhost:8080",
     "basePath": "/api/",
     "paths": {
         "/auth/login": {
@@ -164,7 +164,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TaskData"
+                            "$ref": "#/definitions/handlers.CreateTaskData"
                         }
                     }
                 ],
@@ -225,7 +225,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TaskData"
+                            "$ref": "#/definitions/handlers.UpdateTaskData"
                         }
                     }
                 ],
@@ -303,6 +303,25 @@
         }
     },
     "definitions": {
+        "handlers.CreateTaskData": {
+            "type": "object",
+            "required": [
+                "description",
+                "status",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -319,7 +338,7 @@
                 }
             }
         },
-        "handlers.TaskData": {
+        "handlers.UpdateTaskData": {
             "type": "object",
             "properties": {
                 "description": {
@@ -335,6 +354,10 @@
         },
         "handlers.UserData": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
                 "password": {
                     "type": "string"

@@ -26,7 +26,7 @@ func NewTaskHandler(taskService *services.TaskService) *TaskHandler {
 // @Accept  json
 // @Produce  json
 // @Tags tasks
-// @Param input body TaskData true "user info"
+// @Param input body CreateTaskData true "user info"
 // @Success 201 {object} models.Task
 // @Failure 400 {object} ErrorResponse
 // @Failure 401
@@ -76,7 +76,7 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 // @Produce  json
 // @Tags tasks
 // @Param id path int true "Task ID"
-// @Param input body TaskData true "user info"
+// @Param input body UpdateTaskData true "user info"
 // @Success 200
 // @Failure 400 {object} ErrorResponse
 // @Failure 401

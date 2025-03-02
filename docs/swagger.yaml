@@ -1,5 +1,18 @@
 basePath: /api/
 definitions:
+  handlers.CreateTaskData:
+    properties:
+      description:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    required:
+    - description
+    - status
+    - title
+    type: object
   handlers.ErrorResponse:
     properties:
       error:
@@ -10,7 +23,7 @@ definitions:
       message:
         type: string
     type: object
-  handlers.TaskData:
+  handlers.UpdateTaskData:
     properties:
       description:
         type: string
@@ -25,6 +38,9 @@ definitions:
         type: string
       username:
         type: string
+    required:
+    - password
+    - username
     type: object
   models.Task:
     properties:
@@ -41,7 +57,7 @@ definitions:
       user_id:
         type: integer
     type: object
-host: 172.27.227.76:8080
+host: localhost:8080
 info:
   contact: {}
   description: API Server for TODO Application
@@ -143,7 +159,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/handlers.TaskData'
+          $ref: '#/definitions/handlers.CreateTaskData'
       produces:
       - application/json
       responses:
@@ -214,7 +230,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/handlers.TaskData'
+          $ref: '#/definitions/handlers.UpdateTaskData'
       produces:
       - application/json
       responses:

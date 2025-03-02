@@ -170,7 +170,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TaskData"
+                            "$ref": "#/definitions/handlers.CreateTaskData"
                         }
                     }
                 ],
@@ -231,7 +231,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TaskData"
+                            "$ref": "#/definitions/handlers.UpdateTaskData"
                         }
                     }
                 ],
@@ -309,6 +309,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.CreateTaskData": {
+            "type": "object",
+            "required": [
+                "description",
+                "status",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -325,7 +344,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.TaskData": {
+        "handlers.UpdateTaskData": {
             "type": "object",
             "properties": {
                 "description": {
@@ -341,6 +360,10 @@ const docTemplate = `{
         },
         "handlers.UserData": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
                 "password": {
                     "type": "string"
@@ -379,7 +402,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "172.27.227.76:8080",
+	Host:             "localhost:8080",
 	BasePath:         "/api/",
 	Schemes:          []string{},
 	Title:            "TODO App API",
