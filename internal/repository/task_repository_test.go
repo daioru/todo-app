@@ -80,3 +80,20 @@ func TestUpdateTask(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
+
+func TestDeleteTask(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer mockDB.Close()
+
+	db := sqlx.NewDb(mockDB, "sqlmock")
+	repo := repository.NewTaskRepository(db)
+
+	mock.ExpectExec("DELETE FROM tasks").
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	err = repo.DeleteTask(1, 1)
+	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
