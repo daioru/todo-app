@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
@@ -98,16 +100,18 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	updates["user_id"] = c.GetInt("user_id")
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid fields to update"})
-		return
-	}
-
 	if err := h.service.UpdateTask(updates); err != nil {
 		if err == repository.ErrNoRowsUpdated {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task or user ID"})
 			return
 		}
+
+		var baseErr *helpers.BaseValidationError
+		if errors.As(err, &baseErr) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid fields to update"})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}

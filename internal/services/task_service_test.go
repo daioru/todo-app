@@ -3,6 +3,7 @@ package services_test
 import (
 	"testing"
 
+	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/services"
 	"github.com/stretchr/testify/assert"
@@ -69,7 +70,7 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *services.BaseValidationError
+		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
 	})
 
@@ -85,7 +86,7 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *services.BaseValidationError
+		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
 	})
 
@@ -101,7 +102,7 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *services.BaseValidationError
+		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
 	})
 
@@ -117,7 +118,7 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *services.BaseValidationError
+		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
 	})
 }
