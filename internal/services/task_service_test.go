@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var baseErr *helpers.BaseValidationError
+
 type MockTaskRepo struct {
 	mock.Mock
 }
@@ -40,7 +42,9 @@ func (m *MockTaskRepo) UpdateTask(updates map[string]interface{}) error {
 }
 
 func TestCreateTask(t *testing.T) {
+	t.Parallel()
 	t.Run("Successful creation", func(t *testing.T) {
+		t.Parallel()
 		mockRepo := new(MockTaskRepo)
 		service := services.NewTaskService(mockRepo)
 
@@ -59,6 +63,7 @@ func TestCreateTask(t *testing.T) {
 	})
 
 	t.Run("Blank title", func(t *testing.T) {
+		t.Parallel()
 		mockRepo := new(MockTaskRepo)
 		service := services.NewTaskService(mockRepo)
 
@@ -70,11 +75,13 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "CreateTask")
+		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Title too long", func(t *testing.T) {
+		t.Parallel()
 		mockRepo := new(MockTaskRepo)
 		service := services.NewTaskService(mockRepo)
 
@@ -86,11 +93,13 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "CreateTask")
+		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Status empty", func(t *testing.T) {
+		t.Parallel()
 		mockRepo := new(MockTaskRepo)
 		service := services.NewTaskService(mockRepo)
 
@@ -102,11 +111,13 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "CreateTask")
+		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Status too long", func(t *testing.T) {
+		t.Parallel()
 		mockRepo := new(MockTaskRepo)
 		service := services.NewTaskService(mockRepo)
 
@@ -118,7 +129,131 @@ func TestCreateTask(t *testing.T) {
 		}
 
 		err := service.CreateTask(task)
-		var baseErr *helpers.BaseValidationError
 		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "CreateTask")
+		mockRepo.AssertExpectations(t)
 	})
+}
+
+func TestGetTasksByUser(t *testing.T) {
+	t.Parallel()
+	mockRepo := new(MockTaskRepo)
+	service := services.NewTaskService(mockRepo)
+
+	tasks := []models.Task{
+		{ID: 1, Title: "Task 1", UserID: 1},
+		{ID: 2, Title: "Task 2", UserID: 1},
+	}
+
+	mockRepo.On("GetTasksByUserID", 1).Return(tasks, nil)
+
+	result, err := service.GetTasksByUserID(1)
+	assert.NoError(t, err)
+	assert.Len(t, result, 2)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestUpdateTask(t *testing.T) {
+	t.Parallel()
+	t.Run("Successful update", func(t *testing.T) {
+		t.Parallel()
+		mockRepo := new(MockTaskRepo)
+		service := services.NewTaskService(mockRepo)
+
+		updates := map[string]interface{}{
+			"id":          1,
+			"user_id":     1,
+			"title":       "Updated title",
+			"description": "Updated description",
+			"status":      "completed",
+		}
+
+		mockRepo.On("UpdateTask", updates).Return(nil)
+
+		err := service.UpdateTask(updates)
+		assert.NoError(t, err)
+		mockRepo.AssertNotCalled(t, "UpdateTask")
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("UserID not specified", func(t *testing.T) {
+		t.Parallel()
+		mockRepo := new(MockTaskRepo)
+		service := services.NewTaskService(mockRepo)
+
+		updates := map[string]interface{}{
+			"id":          1,
+			"title":       "Updated title",
+			"description": "Updated description",
+			"status":      "completed",
+		}
+
+		err := service.UpdateTask(updates)
+		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "UpdateTask")
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("TaskID not specified", func(t *testing.T) {
+		t.Parallel()
+		mockRepo := new(MockTaskRepo)
+		service := services.NewTaskService(mockRepo)
+
+		updates := map[string]interface{}{
+			"user_id":     1,
+			"title":       "Updated title",
+			"description": "Updated description",
+			"status":      "completed",
+		}
+
+		err := service.UpdateTask(updates)
+		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "UpdateTask")
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("No fields to update", func(t *testing.T) {
+		t.Parallel()
+		mockRepo := new(MockTaskRepo)
+		service := services.NewTaskService(mockRepo)
+
+		updates := map[string]interface{}{
+			"id":      1,
+			"user_id": 1,
+		}
+
+		err := service.UpdateTask(updates)
+		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "UpdateTask")
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Unexpected field", func(t *testing.T) {
+		t.Parallel()
+		mockRepo := new(MockTaskRepo)
+		service := services.NewTaskService(mockRepo)
+
+		updates := map[string]interface{}{
+			"id":               1,
+			"user_id":          1,
+			"unexpected_field": "unexpected update",
+		}
+
+		err := service.UpdateTask(updates)
+		assert.ErrorAs(t, err, &baseErr)
+		mockRepo.AssertNotCalled(t, "UpdateTask")
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestDeleteTask(t *testing.T) {
+	t.Parallel()
+	mockRepo := new(MockTaskRepo)
+	service := services.NewTaskService(mockRepo)
+
+	mockRepo.On("DeleteTask", 1, 1).Return(nil)
+
+	err := service.DeleteTask(1, 1)
+	assert.NoError(t, err)
+	mockRepo.AssertExpectations(t)
 }
