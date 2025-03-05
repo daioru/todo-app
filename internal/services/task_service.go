@@ -35,7 +35,7 @@ func (s *TaskService) GetTasksByUser(userID int) ([]models.Task, error) {
 }
 
 func (s *TaskService) UpdateTask(updates map[string]interface{}) error {
-	updates, err := helpers.Validate(updates)
+	updates, err := helpers.ValidateUpdates(updates)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,7 @@ var allowedFields = map[string]bool{
 	"status":      true,
 }
 
-func Validate(updates map[string]interface{}) (map[string]interface{}, error) {
+func ValidateUpdates(updates map[string]interface{}) (map[string]interface{}, error) {
 	_, ok := updates["id"]
 	if !ok {
 		return nil, fmt.Errorf("validation failed: %w", NewSpecificValidationError("id", "cannot be empty"))
