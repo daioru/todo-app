@@ -1,7 +1,7 @@
 package services
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/daioru/todo-app/internal/models"
 )
@@ -22,21 +22,30 @@ func NewTaskService(taskRepo ITaskRepository) *TaskService {
 	return &TaskService{taskRepo: taskRepo}
 }
 
-func (s *TaskService) CreateTask(task *models.Task) error {
+func ValidateTaskFields(task *models.Task) error {
 	if task.Title == "" {
-		return errors.New("task title cannot be blank")
+		return fmt.Errorf("validation failed: %w", NewSpecificValidationError("title", "cannot be blank"))
 	}
 
 	if len(task.Title) > 100 {
-		return errors.New("title field too long")
+		return fmt.Errorf("validation failed: %w", NewSpecificValidationError("title", "field too long"))
 	}
 
 	if task.Status == "" {
-		return errors.New("task status cannot be blank")
+		return fmt.Errorf("validation failed: %w", NewSpecificValidationError("status", "cannot be blank"))
 	}
 
 	if len(task.Status) > 100 {
-		return errors.New("status field too long")
+		return fmt.Errorf("validation failed: %w", NewSpecificValidationError("title", "status too long"))
+	}
+
+	return nil
+}
+
+func (s *TaskService) CreateTask(task *models.Task) error {
+	err := ValidateTaskFields(task)
+	if err != nil {
+		return err
 	}
 
 	return s.taskRepo.CreateTask(task)
