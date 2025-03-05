@@ -68,7 +68,7 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 // @Router /tasks/ [get]
 func (h *TaskHandler) GetTasks(c *gin.Context) {
 	userID := c.GetInt("user_id")
-	tasks, err := h.service.GetTasksByUser(userID)
+	tasks, err := h.service.GetTasksByUserID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return

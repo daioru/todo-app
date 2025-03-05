@@ -30,7 +30,7 @@ func (s *TaskService) CreateTask(task *models.Task) error {
 	return s.taskRepo.CreateTask(task)
 }
 
-func (s *TaskService) GetTasksByUser(userID int) ([]models.Task, error) {
+func (s *TaskService) GetTasksByUserID(userID int) ([]models.Task, error) {
 	return s.taskRepo.GetTasksByUserID(userID)
 }
 
