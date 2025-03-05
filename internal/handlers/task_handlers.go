@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/repository"
 	"github.com/daioru/todo-app/internal/services"
@@ -99,7 +98,6 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	updates["user_id"] = c.GetInt("user_id")
 
-	updates, err = helpers.Validate(updates)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid fields to update"})
 		return

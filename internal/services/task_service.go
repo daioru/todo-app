@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 )
 
@@ -56,6 +57,11 @@ func (s *TaskService) GetTasksByUser(userID int) ([]models.Task, error) {
 }
 
 func (s *TaskService) UpdateTask(updates map[string]interface{}) error {
+	updates, err := helpers.Validate(updates)
+	if err != nil {
+		return err
+	}
+
 	return s.taskRepo.UpdateTask(updates)
 }
 
