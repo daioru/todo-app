@@ -1,6 +1,8 @@
 package helpers
 
-import "errors"
+import (
+	"fmt"
+)
 
 var allowedFields = map[string]bool{
 	"id":          true, //Для указания какой Task обновлять
@@ -13,16 +15,16 @@ var allowedFields = map[string]bool{
 func Validate(updates map[string]interface{}) (map[string]interface{}, error) {
 	_, ok := updates["id"]
 	if !ok {
-		return nil, errors.New("no id for task provided")
+		return nil, fmt.Errorf("validation failed: %w", NewSpecificValidationError("id", "cannot be empty"))
 	}
 
 	_, ok = updates["user_id"]
 	if !ok {
-		return nil, errors.New("no user_id provided")
+		return nil, fmt.Errorf("validation failed: %w", NewSpecificValidationError("user_id", "cannot be empty"))
 	}
 
 	if len(updates) <= 2 {
-		return nil, errors.New("no fields to update")
+		return nil, fmt.Errorf("validation failed: %w", NewSpecificValidationError("", "no fields to update"))
 	}
 
 	return FilterAllowedFields(updates)
@@ -36,7 +38,7 @@ func FilterAllowedFields(updates map[string]interface{}) (map[string]interface{}
 		if _, ok := allowedFields[key]; ok {
 			validUpdates[key] = value
 		} else {
-			return nil, errors.New("field not allowed")
+			return nil, fmt.Errorf("validation failed: %w", NewSpecificValidationError(key, "field not allowed"))
 		}
 	}
 
