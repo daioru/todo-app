@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var baseErr *helpers.BaseValidationError
+
 type TaskHandler struct {
 	service *services.TaskService
 }
@@ -42,6 +44,11 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 
 	task.UserID = c.GetInt("user_id")
 	if err := h.service.CreateTask(&task); err != nil {
+		if errors.As(err, &baseErr) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}
@@ -106,9 +113,8 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 			return
 		}
 
-		var baseErr *helpers.BaseValidationError
 		if errors.As(err, &baseErr) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid fields to update"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
