@@ -66,6 +66,33 @@ func TestRegisterUser(t *testing.T) {
 		mockRepo.AssertCalled(t, "CreateUser", user)
 		mockRepo.AssertExpectations(t)
 	})
+
+	t.Run("Error checking UserExists", func(t *testing.T) {
+		mockRepo := new(MockUserRepo)
+		service := services.NewAuthService(mockRepo)
+
+		mockRepo.On("UserExists", user).Return(false, errors.New("some error"))
+
+		err := service.RegisterUser(user)
+		assert.Error(t, err)
+
+		mockRepo.AssertNotCalled(t, "CreateUser")
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Error creating user", func(t *testing.T) {
+		mockRepo := new(MockUserRepo)
+		service := services.NewAuthService(mockRepo)
+
+		mockRepo.On("UserExists", user).Return(false, nil)
+		mockRepo.On("CreateUser", user).Return(errors.New("failed to create user"))
+
+		err := service.RegisterUser(user)
+		assert.Error(t, err)
+
+		mockRepo.AssertCalled(t, "CreateUser", user)
+		mockRepo.AssertExpectations(t)
+	})
 }
 
 func TestLoginUser(t *testing.T) {
