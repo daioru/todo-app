@@ -98,7 +98,8 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 // @Router /tasks/{id} [put]
 func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	var updates map[string]interface{}
-	if err := c.ShouldBindJSON(&updates); err != nil {
+	err := c.ShouldBindJSON(&updates)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
@@ -128,7 +129,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.AbortWithStatus(http.StatusOK)
 }
 
 // @Summary DeleteTask
@@ -146,7 +147,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 func (h *TaskHandler) DeleteTask(c *gin.Context) {
 	taskID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID format"})
 		return
 	}
 

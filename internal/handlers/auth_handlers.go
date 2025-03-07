@@ -46,13 +46,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	if err != nil {
 		if err == repository.ErrUniqueUser {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "username already taken"})
+			return
 		}
 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server side error"})
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.AbortWithStatus(http.StatusCreated)
 }
 
 // @Summary Login
@@ -86,5 +87,5 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", token, 3600*24*3, "", "", false, true)
 
-	c.Status(http.StatusOK)
+	c.AbortWithStatus(http.StatusOK)
 }
