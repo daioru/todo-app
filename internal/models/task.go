@@ -9,9 +9,9 @@ import (
 type Task struct {
 	ID          int      `db:"id" json:"id"`
 	UserID      int      `db:"user_id" json:"user_id"`
-	Title       string   `db:"title" json:"title"`
-	Description string   `db:"description" json:"description"`
-	Status      string   `db:"status" json:"status"`
+	Title       string   `db:"title" json:"title" binding:"required"`
+	Description string   `db:"description" json:"description" binding:"required"`
+	Status      string   `db:"status" json:"status" binding:"required"`
 	CreatedAt   JSONTime `db:"created_at" json:"created_at"`
 }
 
