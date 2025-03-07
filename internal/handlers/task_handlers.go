@@ -9,17 +9,23 @@ import (
 	"github.com/daioru/todo-app/internal/helpers"
 	"github.com/daioru/todo-app/internal/models"
 	"github.com/daioru/todo-app/internal/repository"
-	"github.com/daioru/todo-app/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
 var baseErr *helpers.BaseValidationError
 
-type TaskHandler struct {
-	service *services.TaskService
+type ITaskService interface {
+	CreateTask(task *models.Task) error
+	GetTasksByUserID(userID int) ([]models.Task, error)
+	UpdateTask(updates map[string]interface{}) error
+	DeleteTask(taskID, userID int) error
 }
 
-func NewTaskHandler(taskService *services.TaskService) *TaskHandler {
+type TaskHandler struct {
+	service ITaskService
+}
+
+func NewTaskHandler(taskService ITaskService) *TaskHandler {
 	return &TaskHandler{service: taskService}
 }
 

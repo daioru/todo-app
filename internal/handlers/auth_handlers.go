@@ -12,11 +12,16 @@ import (
 	_ "github.com/daioru/todo-app/docs"
 )
 
-type AuthHandler struct {
-	service *services.AuthService
+type IAuthService interface {
+	RegisterUser(user *models.User) error
+	LoginUser(username, password string) (string, error)
 }
 
-func NewAuthHandler(service *services.AuthService) *AuthHandler {
+type AuthHandler struct {
+	service IAuthService
+}
+
+func NewAuthHandler(service IAuthService) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 
