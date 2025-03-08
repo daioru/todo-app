@@ -56,6 +56,10 @@ definitions:
         type: string
       user_id:
         type: integer
+    required:
+    - description
+    - status
+    - title
     type: object
 host: localhost:8080
 info:

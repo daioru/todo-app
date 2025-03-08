@@ -375,6 +375,11 @@ const docTemplate = `{
         },
         "models.Task": {
             "type": "object",
+            "required": [
+                "description",
+                "status",
+                "title"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"

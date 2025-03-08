@@ -7,6 +7,7 @@ WORKDIR /home/${GITHUB_PATH}
 COPY . .
 
 RUN apk add --no-cache make
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN make build
 RUN make migrate_build
 
@@ -25,16 +26,13 @@ COPY --from=builder /home/${GITHUB_PATH}/bin/todo-app .
 COPY --from=builder /home/${GITHUB_PATH}/bin/migration .
 COPY --from=builder /home/${GITHUB_PATH}/config.yml .
 COPY --from=builder /home/${GITHUB_PATH}/migrations/ ./migrations
-# Копируем entrypoint.sh
 COPY --from=builder /home/${GITHUB_PATH}/entrypoint.sh .
+COPY --from=builder /home/${GITHUB_PATH}/docs ./docs
 
-# Копирование .env
 COPY .env .env
 
-# Делаем скрипт исполняемым
 RUN chmod +x /root/entrypoint.sh  
 
 EXPOSE 8080
 
-# Запускаем скрипт при старте контейнера
 ENTRYPOINT ["/root/entrypoint.sh"]  
